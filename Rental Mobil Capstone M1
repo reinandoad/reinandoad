@@ -1,0 +1,186 @@
+# Program Rental Mobil
+# Menambahkan data customer
+# Menghapus data customer
+# Melihat database mobil
+# Mencari mobil tersedia berdasarkan transmisi atau merk
+
+customers = {
+    "P001": {"Nama": "Badang Suryadi", "No KTP": "327001", "Kode Kendaraan": "A001", "Lama Peminjaman": 4, "Total Pembayaran": 1600000},
+    "P002": {"Nama": "Zilong Mulyono", "No KTP": "327002", "Kode Kendaraan": "A101", "Lama Peminjaman": 2, "Total Pembayaran": 900000},
+    "P003": {"Nama": "Eudora Azzahra", "No KTP": "327003", "Kode Kendaraan": "C003", "Lama Peminjaman": 1, "Total Pembayaran": 200000},
+    "P004": {"Nama": "Layla Khalilah", "No KTP": "327004", "Kode Kendaraan": "B202", "Lama Peminjaman": 2, "Total Pembayaran": 600000},
+    "P005": {"Nama": "Balmond Wijaya", "No KTP": "327005", "Kode Kendaraan": "C303", "Lama Peminjaman": 3, "Total Pembayaran": 750000}
+}
+
+cars = {
+    "A001": {"merek": "Avanza", "transmisi": "M/T", "unit": 0, "harga": 400000},
+    "B002": {"merek": "Brio", "transmisi": "M/T", "unit": 1, "harga": 300000},
+    "C003": {"merek": "Calya", "transmisi": "M/T", "unit": 0, "harga": 200000},
+    "D004": {"merek": "Fortuner", "transmisi": "M/T", "unit": 1, "harga": 500000},
+    "E005": {"merek": "Pajero", "transmisi": "M/T", "unit": 1, "harga": 500000},
+    "A101": {"merek": "Avanza", "transmisi": "A/T", "unit": 1, "harga": 450000},
+    "B202": {"merek": "Brio", "transmisi": "A/T", "unit": 1, "harga": 350000},
+    "C303": {"merek": "Calya", "transmisi": "A/T", "unit": 1, "harga": 250000},
+    "D404": {"merek": "Fortuner", "transmisi": "A/T", "unit": 1, "harga": 550000},
+    "E505": {"merek": "Pajero", "transmisi": "A/T", "unit": 1, "harga": 550000},
+}
+
+next_id = 6
+
+def show_customers():
+    choice = input("\n1. Lihat seluruh database\n2. Input kode Customer\nPilih opsi: ")
+    if choice == "1":
+        print("\n--- DATABASE CUSTOMER ---")
+        print(f"{'ID':<6} {'Nama':<20} {'No KTP':<10} {'Kode':<10} {'Lama':<5} {'Total Pembayaran'}")
+        print("-" * 70)
+        for cid, data in customers.items():
+            print(f"{cid:<6} {data['Nama']:<20} {data['No KTP']:<10} {data['Kode Kendaraan']:<10} {data['Lama Peminjaman']:<5} Rp{data['Total Pembayaran']:,}")
+    elif choice == "2":
+        cid = input("Masukkan ID Customer: ")
+        if cid in customers:
+            data = customers[cid]
+            print("\nData Customer:")
+            print(f"ID: {cid}")
+            print(f"Nama: {data['Nama']}")
+            print(f"No KTP: {data['No KTP']}")
+            print(f"Kode Kendaraan: {data['Kode Kendaraan']}")
+            print(f"Lama Peminjaman: {data['Lama Peminjaman']} hari")
+            print(f"Total Pembayaran: Rp{data['Total Pembayaran']:,}")
+        else:
+            print("ID customer tidak ditemukan.")
+    else:
+        print("Pilihan tidak valid.")
+
+def add_customer():
+    global next_id
+    nama = input("Nama customer: ")
+    ktp = input("No KTP: ")
+    kode = input("Kode Kendaraan: ").upper()
+    lama = int(input("Lama peminjaman (hari): "))
+
+    if kode in cars:
+        if cars[kode]["unit"] > 0:
+            total = cars[kode]["harga"] * lama
+            cid = f"P{next_id:03}"
+            print("\n--- DATA CUSTOMER BARU ---")
+            print(f"ID: {cid}")
+            print(f"Nama: {nama}")
+            print(f"No KTP: {ktp}")
+            print(f"Kode Kendaraan: {kode}")
+            print(f"Lama Peminjaman: {lama} hari")
+            print(f"Total Pembayaran: Rp{total:,}")
+            konfirmasi = input("\nApa anda yakin ingin menambahkan customer? (Ya/Tidak): ").lower()
+            if konfirmasi != "ya":
+                print("Penambahan dibatalkan.")
+                return
+            customers[cid] = {
+                "Nama": nama,
+                "No KTP": ktp,
+                "Kode Kendaraan": kode,
+                "Lama Peminjaman": lama,
+                "Total Pembayaran": total
+            }
+            cars[kode]["unit"] -= 1
+            next_id += 1
+            print(f"Customer {cid} berhasil ditambahkan.")
+            show_customers()
+        else:
+            print("Unit tidak tersedia.")
+    else:
+        print("Kode kendaraan tidak ditemukan.")
+
+def delete_customer():
+    cid = input("Masukkan ID customer yang ingin dihapus: ")
+    if cid in customers:
+        konfirmasi = input("Apa anda yakin ingin menghapus customer? (Ya/Tidak): ").lower()
+        if konfirmasi == "ya":
+            kode = customers[cid]["Kode Kendaraan"]
+            cars[kode]["unit"] += 1
+            del customers[cid]
+            print("Customer berhasil dihapus.")
+            show_customers()
+        else:
+            print("Penghapusan dibatalkan.")
+    else:
+        print("ID customer tidak ditemukan.")
+
+def show_cars():
+    print("\n1. Lihat Seluruh Database Mobil")
+    print("2. Cari mobil berdasarkan kode")
+    print("3. Cari mobil available berdasarkan transmisi")
+    print("4. Cari mobil available berdasarkan merek")
+    choice = input("Pilih opsi: ")
+
+    if choice == "1":
+        print("\n--- DATABASE MOBIL (SEMUA UNIT) ---")
+        print(f"{'Kode':<6} {'Merek':<10} {'Transmisi':<10} {'Unit':<5} {'Harga per Hari'}")
+        print("-" * 55)
+        for kode, data in cars.items():
+            print(f"{kode:<6} {data['merek']:<10} {data['transmisi']:<10} {data['unit']:<5} Rp{data['harga']:,}")
+    elif choice == "2":
+        kode_input = input("Masukkan kode kendaraan: ").upper()
+        if kode_input in cars:
+            data = cars[kode_input]
+            if data['unit'] > 0:
+                print("\nDetail Mobil:")
+                print(f"Kode: {kode_input}")
+                print(f"Merek: {data['merek']}")
+                print(f"Transmisi: {data['transmisi']}")
+                print(f"Unit Tersedia: {data['unit']}")
+                print(f"Harga per Hari: Rp{data['harga']:,}")
+            else:
+                print("Mobil dengan kode tersebut tidak tersedia saat ini.")
+        else:
+            print("Kode kendaraan tidak ditemukan.")
+    elif choice == "3":
+        transmisi_input = input("Masukkan jenis transmisi (M/T atau A/T): ").upper()
+        found = False
+        print("\nMobil dengan transmisi", transmisi_input, "(tersedia)")
+        print(f"{'Kode':<6} {'Merek':<10} {'Transmisi':<10} {'Unit':<5} {'Harga per Hari'}")
+        print("-" * 55)
+        for kode, data in cars.items():
+            if data['transmisi'].upper() == transmisi_input and data['unit'] > 0:
+                found = True
+                print(f"{kode:<6} {data['merek']:<10} {data['transmisi']:<10} {data['unit']:<5} Rp{data['harga']:,}")
+        if not found:
+            print("Tidak ada mobil tersedia dengan transmisi tersebut.")
+    elif choice == "4":
+        brand_input = input("Masukkan merek mobil: ").lower()
+        found = False
+        print("\nMobil merek", brand_input.capitalize(), "(tersedia)")
+        print(f"{'Kode':<6} {'Merek':<10} {'Transmisi':<10} {'Unit':<5} {'Harga per Hari'}")
+        print("-" * 55)
+        for kode, data in cars.items():
+            if data['merek'].lower() == brand_input and data['unit'] > 0:
+                found = True
+                print(f"{kode:<6} {data['merek']:<10} {data['transmisi']:<10} {data['unit']:<5} Rp{data['harga']:,}")
+        if not found:
+            print("Tidak ada mobil tersedia dengan merek tersebut.")
+    else:
+        print("Pilihan tidak valid.")
+
+def main_menu():
+    while True:
+        print("\n--- CV RENTAL MOBIL ABADI JAYA BALI ---")
+        print("1. Lihat Customer")
+        print("2. Tambah Customer")
+        print("3. Hapus Customer")
+        print("4. Lihat Database Mobil")
+        print("5. Keluar")
+        pilihan = input("Pilih menu: ")
+
+        if pilihan == "1":
+            show_customers()
+        elif pilihan == "2":
+            add_customer()
+        elif pilihan == "3":
+            delete_customer()
+        elif pilihan == "4":
+            show_cars()
+        elif pilihan == "5":
+            print("Terima kasih. Selamat bekerja! Jangan lupa senyum, salam, sapa")
+            break
+        else:
+            print("Pilihan tidak valid.")
+
+main_menu()
